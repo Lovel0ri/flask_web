@@ -2,13 +2,17 @@
 # @Author: 李树斌
 # @File : hello1.py
 # @Software :PyCharm
-from flask import Flask
+from flask import Flask,request
 app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return '<h1>Hello, World!</h1>'
+    user_agent = request.headers.get('User-Agent')
+    return '<p>Your browser is {} </p>'.format(user_agent)
 
-@app.route('/usr/<name>')
+@app.route('/user/<name>')
 def user(name):
     return f'<h1>Hello,{name}!</h1>'.format(name)
+
+if __name__ == '__main__':
+    app.run(debug=True)
