@@ -9,7 +9,7 @@ def index():
 
 @app.route('/user/<name>')
 def user():
-    return render_template('tem_chapter3/../templates/3-9user.html', name = name)
+    return render_template('tem_chapter3/../templates/user.html', name = name)
 
 
 if __name__ == '__main__':
