@@ -49,15 +49,15 @@ class User(db.Model):
 def index():
     form = NameForm()#实例化Nameform
     if form.validate_on_submit():#如果能被验证函数接受返回True
-        user = User.query.filter_by(username=form.name.data).first()
-        if user is None:
-            user = User(username=form.name.data)
-            db.session.add(user)
+        user = User.query.filter_by(username=form.name.data).first()#从数据库搜寻提交的名字是否在数据库中
+        if user is None:#数据库没有该提交的名字
+            user = User(username=form.name.data)#form提交的名字赋给user
+            db.session.add(user)#数据库添加user
             db.session.commit()
             session['known'] = False
         else:
             session['known'] = True
-        session['name'] = form.name.data
+        session['name'] = form.name.data#保存用户对话
         form.name.data=''#把data属性设为空字符串，清空表单字段
         return redirect(url_for('index'))
     return render_template('index.html',form=form,name=session.get('name'),
