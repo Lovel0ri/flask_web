@@ -8,11 +8,11 @@
       <jdbc-url>jdbc:mysql://localhost:3306</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="sqlite3.exe" uuid="f0bb44e1-3b6a-49c7-9963-75d3bac5cd92">
+    <data-source source="LOCAL" name="data" uuid="dbfe7d95-bf6f-4762-a4a6-e022c79edd2b">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/../../../软件应用/sqlite-dll-win64-x64-3390300/sqlite-tools-win32-x86-3390300/sqlite3.exe</jdbc-url>
+      <jdbc-url>jdbc:sqlite:identifier.sqlite</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
