@@ -45,6 +45,10 @@ class User(db.Model):
     def __repr__(self):
         return "< User %r>" %self.username
 """角色到用户是一对多的关系，一个角色可以属于多个用户，但每个用户都只能有一个角色"""
+
+@app.shell_context_processor
+def make_shell_contenr():
+    return dict(db=db,User = User,Role=Role)
 @app.route('/',methods = ['GET','POST'])
 def index():
     form = NameForm()#实例化Nameform
