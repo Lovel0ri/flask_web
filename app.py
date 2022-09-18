@@ -5,7 +5,7 @@
 from flask import Flask, render_template,session,redirect,url_for,flash
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
-
+from flask_migrate import Migrate
 from wtforms import StringField,SubmitField
 from wtforms.validators import DataRequired
 from flask_moment import Moment
@@ -22,6 +22,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] =False
 db = SQLAlchemy(app)#db对象是SQLAlchemy类的实例
 bootstrap = Bootstrap(app)
 moment = Moment(app)
+migrate = Migrate(app,db)
 app.config['SECRET_KEY'] = 'hard to guess string'
 
 class NameForm(FlaskForm):
