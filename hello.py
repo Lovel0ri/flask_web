@@ -9,8 +9,17 @@ from datetime import datetime
 from wtforms import StringField,SubmitField
 from wtforms.validators import DataRequired
 from flask_moment import Moment
+import os
+from flask_sqlalchemy import SQLAlchemy
+
+basedir = os.path.abspath((os.path.dirname(__file__)))
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] =\
+    'sqlite///' + os.path.join(basedir,'data.sqlite')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] =False
+
+db = SQLAlchemy(app)#db对象是SQLAlchemy类的实例
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 app.config['SECRET_KEY'] = 'hard to guess string'
@@ -18,6 +27,24 @@ app.config['SECRET_KEY'] = 'hard to guess string'
 class NameForm(FlaskForm):
     name = StringField('What is your name?',validators=[DataRequired()])
     submit = SubmitField('submit')#表单提交按钮
+
+"""定义Role 和 Users模型"""
+class Role(db.Model):
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer,primary_key = True)#primary_key设为主键
+    name = db.Column(db.String(64),unique = True)#unique不允许出现重复的值
+    users = db.relationship('User',backref='role')
+    def __repr__(self):
+        return '<Role %r>' % self.name
+
+class User(db.Model):
+    __tablename__ = 'Users'
+    id = db.Column(db.Integer,primary_key = True)#primary_key设为主键
+    username = db.Column(db.String(64),unique = True,index = True)#unique不允许出现重复的值，index为列设置索引，提升查询效率
+    role_id = db.Column(db.Integer,db.ForeignKey('roles.id'))
+    def __repr__(self):
+        return '<User %r>' % self.name
+"""角色到用户是一对多的关系，一个角色可以属于多个用户，但每个用户都只能有一个角色"""
 @app.route('/',methods = ['GET','POST'])
 def index():
     # name = None#如果没有值输入就为None
