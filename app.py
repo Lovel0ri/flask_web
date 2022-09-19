@@ -11,20 +11,33 @@ from wtforms.validators import DataRequired
 from flask_moment import Moment
 import os
 from flask_sqlalchemy import SQLAlchemy
+from flask_mail import Mail
+from flask_mail import Message
 
 basedir = os.path.abspath((os.path.dirname(__file__)))
 
 app = Flask(__name__)
+bootstrap = Bootstrap(app)
+moment = Moment(app)
+db = SQLAlchemy(app)#db对象是SQLAlchemy类的实例
+migrate = Migrate(app,db)
+
+
+
+
 app.config['SQLALCHEMY_DATABASE_URI'] =\
     "sqlite:///" + os.path.join(basedir,"identifier.sqlite")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] =False
 
-db = SQLAlchemy(app)#db对象是SQLAlchemy类的实例
-bootstrap = Bootstrap(app)
-moment = Moment(app)
-migrate = Migrate(app,db)
 app.config['SECRET_KEY'] = 'hard to guess string'
-
+app.config=['FLASKY_MAIL_SUBJECT_PREFIX'] = '[FLASKY]'
+app.config=['FLASKY_MAIL_SENDER'] = 'Flasky Admin <2697601945@qq.com>'
+mail = Mail(app)
+app.config['MAIL_SERVER'] = 'smtp.qq.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USER_TLS'] = True
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 class NameForm(FlaskForm):
     name = StringField('What is your name?',validators=[DataRequired()])
     submit = SubmitField('submit')#表单提交按钮
@@ -46,7 +59,12 @@ class User(db.Model):
     def __repr__(self):
         return "< User %r>" %self.username
 """角色到用户是一对多的关系，一个角色可以属于多个用户，但每个用户都只能有一个角色"""
-
+def send_email(to,subject,template,**kwargs):
+    msg = Message(app.config['FLASKY_MAIL_SUBJECT_PREFIX'] + subject,
+                  sender=app.config['FLASKY_MAIL_SENDER'],recipients=[to])
+    msg.body = render_template(template +'.txt',**kwargs)
+    msg.html = render_template(template + '.html',**kwargs)
+    mail.send(msg)
 @app.shell_context_processor
 def make_shell_contenr():
     return dict(db=db,User = User,Role=Role)
@@ -58,8 +76,11 @@ def index():
         if user is None:#数据库没有该提交的名字
             user = User(username=form.name.data)#form提交的名字赋给user
             db.session.add(user)#数据库添加user
-            db.session.commit()
+            # db.session.commit()
             session['known'] = False
+            if app.config['FLASKY_ADMIN']:
+                send_email(app.config['FLASKY_ADMIN'],'New User','mail/new_user')
+
         else:
             session['known'] = True
         session['name'] = form.name.data#保存用户对话
